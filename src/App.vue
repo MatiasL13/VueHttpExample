@@ -13,6 +13,8 @@
                 </div>
                 <button class="btn btn-primary" @click="submit">Submit</button>
                 <hr>
+                <input type="" class="form-control" v-model='node' name="">
+                <hr>
                 <button class="btn btn-primary" @click="fetchData">Get data</button>
                 <br><br>
                 <ul class="list-group">
@@ -32,22 +34,28 @@
     					username: '',
 		    			email: ''
     				},
-    				users:[]
+    				users:[],
+    				reource:{},
+    				node: 'packData'
     		}
     	},
     	methods: {
     		submit(){
     			//https://vuehttptestserver.firebaseio.com/
-    			this.$http.post('https://vuehttptestserver.firebaseio.com/packData.json', this.user)
+/*    			this.$http.post('', this.user)
     				.then(response => {
     					console.log(response)
     				}, error =>{
     					console.log(error)
     				}); // una vez que termina 
+*/
+					//using resources
+					this.resource.save({}, this.user);
+					this.resource.saveAlt(this.user)
 
     		},
     		fetchData(){
-    			this.$http.get('https://vuehttptestserver.firebaseio.com/packData.json')
+    			/*this.$http.get('')
     				.then(response =>{
     					return response.json();
     					console.log(data);
@@ -60,9 +68,30 @@
     						resultArray.push(data[key]);
     					}
     					this.users = resultArray;*/
-    					this.users = data;
-    				})
+    					//this.users = data;
+    				//}) 
+
+    				this.resource.getData({node: this.node}).then(response =>{
+    					return response.json();
+    					console.log(data);
+    				}, error=>{
+    					console.log('error')
+    				}).then(data => {
+    					const resultArray = [];
+    					for (let key in data){
+    						resultArray.push(data[key]);
+    					}
+    					this.users = resultArray;
+    				//	this.users = data;
+    					})
     		}
+    	},
+    	created(){
+    		const customActions ={
+    			saveAlt: { method: 'POST', url: 'alternative.json'},
+    			getData: {method: 'GET'}
+    		};
+    		this.resource = this.$resource(this.node+'.json',{}, customActions); // metodo de vue resource 
     	}
     }
 </script>
